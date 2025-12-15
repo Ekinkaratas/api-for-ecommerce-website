@@ -1,0 +1,24 @@
+# Security (ÇOK ÖNEMLİ)
+.env
+.env.*
+
+# Tests
+test/
+tests/
+*.spec.ts
+*.test.ts
+*.spec.js
+*.test.js
+coverage/
+
+# Documentation & Configs
+docs/
+LICENSE
+.github/
+.vscode/
+
+# Gereksiz dosyalar
+.gitignore
+.dockerignore
+docker-compose*
+npm-debug.log

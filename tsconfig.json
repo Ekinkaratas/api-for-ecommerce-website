@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+
+    "target": "ES2022",
+    "lib": ["ES2021"],
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "strict": false,
+    "skipLibCheck": true,
+
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "contracts": ["libs/contracts/src"],
+      "contracts/*": ["libs/contracts/src/*"],
+    },
+
+    "allowJs": true,
+    "noEmit": false,
+    "isolatedModules": false
+  },
+}

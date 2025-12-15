@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output        = "../src/generated/prisma"
+  moduleFormat  = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+  DELETED
+}
+
+// =====================================
+// BRAND
+// =====================================
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  slug     String    @unique
+  logo     String?
+  products Product[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// =====================================
+// CATEGORY
+// =====================================
+model Category {
+  id       Int    @id @default(autoincrement())
+  name     String
+  slug     String @unique
+  parentId Int?
+
+  // İlişkiler
+  parent   Category?  @relation("CategoryToParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryToParent")
+  products Product[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// =====================================
+// PRODUCT
+// =====================================
+model Product {
+  id          Int     @id @default(autoincrement())
+  title       String
+  slug        String  @unique
+  description String  @db.Text
+  price       Decimal @db.Decimal(10, 2)
+  stock       Int     @db.Integer()
+
+  sku String? @unique
+
+  images Json
+  status ProductStatus @default(ACTIVE)
+
+  brandId Int?
+  brand   Brand? @relation(fields: [brandId], references: [id])
+
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  variants ProductVariant[]
+  tags     ProductTag[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// =====================================
+// PRODUCT VARIANT
+// =====================================
+model ProductVariant {
+  id Int @id @default(autoincrement())
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  attributes Json
+
+  sku     String @unique
+  barcode String @unique
+
+  price Decimal? @db.Decimal(10, 2)
+
+  status ProductStatus @default(ACTIVE)
+
+  stock         Int @default(0)
+  reservedStock Int @default(0)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+// =====================================
+// TAGS (Many-to-Many)
+// =====================================
+model Tag {
+  id       Int          @id @default(autoincrement())
+  name     String       @unique
+  products ProductTag[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model ProductTag {
+  productId Int
+  tagId     Int
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+}
